@@ -1,0 +1,193 @@
+project:
+  name: heme_ovarian_pipeline
+  random_seed: 42
+
+paths:
+  base_dir: "."
+  data_dir: "data"
+  metadata_dir: "metadata"
+  results_dir: "results"
+  figures_dir: "figures"
+  logs_dir: "logs"
+
+datasets:
+  ucsc_oc:
+    expression: ""
+    clinical: ""
+    format: "tsv"
+  gse18520:
+    expression: ""
+    clinical: ""
+    format: "txt"
+  gse26712:
+    expression: ""
+    clinical: ""
+    format: "txt"
+
+cohorts:
+  training:
+    name: "UCSC-OC"
+    expression_key: "ucsc_oc"
+    sample_id_column_clinical: "sample_id"
+  validation:
+    name: "GSE26712"
+    expression_key: "gse26712"
+    sample_id_column_clinical: "sample_id"
+  deg_reference:
+    name: "GSE18520"
+    expression_key: "gse18520"
+    sample_id_column_clinical: "sample_id"
+
+column_map:
+  global:
+    sample_aliases:
+      - "sample"
+      - "Sample"
+      - "ID"
+      - "patient"
+    gene_aliases:
+      - "Gene"
+      - "gene_symbol"
+      - "SYMBOL"
+    survival_time_aliases:
+      - "OS.time"
+      - "os_time"
+      - "survival_months"
+      - "time"
+    survival_event_aliases:
+      - "OS"
+      - "event"
+      - "status"
+      - "vital_status"
+
+deg:
+  cohort: "gse18520"
+  group_column: "group"
+  tumor_label: "tumor"
+  normal_label: "normal"
+  padj_threshold: 0.05
+  log2fc_threshold: 0.5
+  method: "welch_ttest_bh"
+
+hmrg:
+  gene_list_path: "metadata/hmrg_genes.txt"
+  expected_count: 283
+
+enrichment:
+  organism: "human"
+  go_bp: true
+  go_cc: true
+  go_mf: true
+  kegg: true
+  enrichr_cutoff: 0.05
+  use_enrichr_api: true
+  enrichr_libraries:
+    - "GO_Biological_Process_2023"
+    - "GO_Cellular_Component_2023"
+    - "GO_Molecular_Function_2023"
+    - "KEGG_2021_Human"
+
+survival:
+  time_col: "OS_time"
+  event_col: "OS_event"
+  duration_unit: "months"
+  univariate_cox_p_threshold: 0.05
+  max_univariate_genes: 200
+
+consensus_models:
+  enabled:
+    - "rsf"
+    - "ridge_cox"
+    - "elastic_net_cox"
+    - "lasso_cox"
+    - "stepwise_cox"
+    - "svm_rfe_cox"
+    - "xgboost_survival"
+  rsf:
+    n_estimators: 500
+    min_samples_leaf: 5
+    max_depth: null
+  ridge_cox:
+    alphas: [0.01, 0.1, 1.0, 10.0]
+  elastic_net_cox:
+    l1_ratio: 0.5
+    alphas: [0.01, 0.1, 1.0]
+  lasso_cox:
+    alphas: [0.001, 0.01, 0.1, 1.0]
+  stepwise_cox:
+    max_features: 30
+    direction: "forward"
+  svm_rfe_cox:
+    n_features_to_select: 15
+  xgboost_survival:
+    n_estimators: 200
+    max_depth: 3
+    learning_rate: 0.05
+
+signature:
+  fixed_genes:
+    - "EPB42"
+    - "SLC7A11"
+    - "HMBS"
+    - "GLRX5"
+  prefer_fixed_for_tables: true
+
+risk_score:
+  cutoff_method: "median"
+  cutoff_quantile: null
+  separate_cutoff_per_cohort: true
+
+gsea_gsva:
+  msigdb_c2_gmt: ""
+  gene_sets: "C2"
+  gsea_permutations: 1000
+  gsva_kernel: "gaussian"
+  run_gsva_via_r: true
+  r_gsva_script: "r_scripts/gsva.R"
+
+immune:
+  ssgsea_gene_sets_gmt: "metadata/immune_cell_28.gmt"
+  immune_cell_labels: []
+
+mutation:
+  maf_path: ""
+  matrix_path: ""
+  gene_column: "Hugo_Symbol"
+  sample_column: "Tumor_Sample_Barcode"
+  top_n_genes: 20
+
+drug_sensitivity:
+  gdsc_expression_reference: ""
+  gdsc_ic50_matrix: ""
+  drug_list_path: ""
+  method: "ridge"
+
+tide:
+  tide_results_path: ""
+  sample_id_column: "sample"
+
+qpcr:
+  clinical_qpcr_path: ""
+  sheet_name: 0
+  group_column: "group"
+  gene_columns:
+    EPB42: "EPB42"
+    SLC7A11: "SLC7A11"
+    HMBS: "HMBS"
+    GLRX5: "GLRX5"
+
+expression_validation:
+  gse18520_boxplot_genes: ["EPB42", "SLC7A11", "HMBS", "GLRX5"]
+  ucsc_oc_boxplot_genes: ["EPB42", "SLC7A11", "HMBS", "GLRX5"]
+
+reporting:
+  figure_prefix: "Figure"
+  table_prefix: "Table"
+  export_pdf: true
+  export_png: true
+  dpi: 300
+  figure_size_inches: [7.0, 5.5]
+
+logging:
+  level: "INFO"
+  file_name: "pipeline.log"

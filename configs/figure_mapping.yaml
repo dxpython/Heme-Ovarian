@@ -1,0 +1,13 @@
+figures:
+  Figure1: "deg_volcano_heatmap"
+  Figure2: "hmrg_venn_enrichment"
+  Figure3: "consensus_model_comparison_km"
+  Figure4: "risk_score_landscape_survival_roc"
+  Figure5: "clinical_association_gsea_gsva"
+  Figure6: "immune_ssgsea_correlation"
+  Figure7: "mutation_drug_tide"
+  Figure8: "expression_validation_qpcr"
+
+tables:
+  Table1: "baseline_clinicopathologic"
+  Table2: "multivariate_cox_signature"
